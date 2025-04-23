@@ -5,7 +5,12 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "build-types": "df-build-types ./"
+    "build-types": "df-build-types ./",
+    "check-types": "tsc",
+    "lint": "eslint .",
+    "prepare": "husky || true",
+    "test": "",
+    "quality": "npm run lint && npm run build-types && npm run check-types && npm run test && npm audit --omit=dev --audit-level=critical"
   },
   "files": [
     "**/*.json",
@@ -24,8 +29,14 @@
     "@data-fair/lib-utils": "^1.5.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@data-fair/lib-common-types": "^1.8.4",
-    "@data-fair/lib-types-builder": "^1.7.0"
+    "@data-fair/lib-types-builder": "^1.7.0",
+    "eslint": "^9.25.1",
+    "husky": "^9.1.7",
+    "neostandard": "^0.12.1",
+    "typescript": "^5.8.3"
   },
   "relativeDependencies": {
     "@data-fair/lib-common-types": "../../../lib/packages/common-types"

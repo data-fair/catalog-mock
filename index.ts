@@ -1,4 +1,4 @@
-import type { CatalogPlugin, CatalogMetadata } from '@data-fair/lib-common-types/catalog.js'
+import type { CatalogPlugin, CatalogMetadata } from '@data-fair/lib-common-types/catalog/index.js'
 import { schema as configSchema, assertValid as assertConfigValid, type MockConfig } from './types/config/index.ts'
 import { allDatasets } from './lib/utils.ts'
 

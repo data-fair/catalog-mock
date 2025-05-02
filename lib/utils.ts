@@ -1,4 +1,4 @@
-import type { CatalogDataset } from '@data-fair/lib-common-types/catalog.js'
+import type { CatalogDataset } from '@data-fair/lib-common-types/catalog/index.js'
 
 export const allDatasets: CatalogDataset[] = [
   {

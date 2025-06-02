@@ -1,72 +1,180 @@
-import type { CatalogDataset } from '@data-fair/lib-common-types/catalog/index.js'
+import type { Folder } from '@data-fair/lib-common-types/catalog/index.js'
 
-export const allDatasets: CatalogDataset[] = [
-  {
-    id: 'dataset-feline-behavior',
-    title: 'Comportements des félins domestiques - MeowCity',
-    description: "Le comportement des félins domestiques illustré dans cette étude comporte dix catégories caractérisant :\n\n* des comportements distincts\n* et des aires de jeux préférées. \n\n**Contexte de collecte**\nDécoulant des observations du Plan Félin, la carte des comportements exprime les habitudes des chats dans les espaces à aménager ou à transformer et confirme celles des espaces déjà établis.\n\nInclusives, les catégories de comportements favorisent la diversité et regroupent une variété d'activités pouvant avoir cours dans une même aire de jeu, moyennant des règles de cohabitation que précisent les recommandations adoptées par les propriétaires.\n\n**Méthode de collecte**\nSelon l'approche retenue, les catégories traduisent la nature générale des comportements, s'éloignant ainsi d'une forme d'analyse dont le caractère trop normatif conduirait à une catégorisation inutilement complexe. \n\n**Attributs**\n| Champ | Alias | Type |\n| --- | --- | --- |\n| `categorie` | Catégorie de comportement félin | `varchar` |\n\nPour plus d'informations, consultez [la métadonnée sur le catalogue CatIpsum](https://catipsum.example.com/catalog/feline-data).",
-    keywords: [
-      'comportement',
-      'plan-félin',
-      'meow-city',
-      'habitudes-des-chats',
-      'éthologie'
-    ],
-    origin: 'https://catipsum.example.com/datasets/feline-behavior',
-    private: true,
-    resources: [
-      {
-        id: 'dataset-feline-behavior-csv',
-        title: 'Comportements_Felins_2023',
-        format: 'csv',
-        fileName: 'Comportements_Felins_2023.csv',
-        url: 'https://data.catipsum.example.com/datasets/feline/behavior?format=csv',
-        mimeType: 'text/csv',
-        size: 1234567,
+export const rootFolder: Folder = {
+  id: 'root',
+  title: 'Jeux de données',
+  folders: {
+    'category-geospatial': {
+      id: 'category-geospatial',
+      title: 'Données Géospatiales',
+      folders: {
+        'subcategory-transport': {
+          id: 'subcategory-transport',
+          title: 'Transport',
+          folders: {
+            'category-economic': {
+              id: 'category-economic',
+              title: 'Données Économiques',
+              folders: {},
+              resources: {
+                'resource-gdp-data': {
+                  id: 'resource-gdp-data',
+                  title: 'PIB par région',
+                  description: 'Produit intérieur brut par région française',
+                  format: 'json',
+                  url: 'https://example.com/gdp-data.json',
+                  mimeType: 'application/json',
+                  size: 512000
+                }
+              }
+            }
+          },
+          resources: {
+            'resource-metro-stations': {
+              id: 'resource-metro-stations',
+              title: 'Stations de métro Paris',
+              description: 'Liste complète des stations de métro parisien avec coordonnées',
+              format: 'geojson',
+              url: 'https://example.com/metro-stations.geojson',
+              mimeType: 'application/geo+json',
+              size: 2048000
+            },
+            'resource-bus-lines': {
+              id: 'resource-bus-lines',
+              title: 'Lignes de bus Paris',
+              description: 'Tracés des lignes de bus avec horaires',
+              format: 'csv',
+              url: 'https://example.com/bus-lines.csv',
+              mimeType: 'text/csv',
+              size: 1024000
+            },
+            'resource-tram-lines': {
+              id: 'resource-tram-lines',
+              title: 'Lignes de tramway Paris',
+              description: 'Tracés des lignes de tramway avec arrêts',
+              format: 'geojson',
+              url: 'https://example.com/tram-lines.geojson',
+              mimeType: 'application/geo+json',
+              size: 1536000
+            },
+            'resource-bike-stations': {
+              id: 'resource-bike-stations',
+              title: 'Stations Vélib Paris',
+              description: 'Emplacements et disponibilités des stations Vélib',
+              format: 'json',
+              url: 'https://example.com/velib-stations.json',
+              mimeType: 'application/json',
+              size: 512000
+            },
+            'resource-parking-lots': {
+              id: 'resource-parking-lots',
+              title: 'Parkings publics Paris',
+              description: 'Localisation et capacité des parkings publics',
+              format: 'csv',
+              url: 'https://example.com/parking-lots.csv',
+              mimeType: 'text/csv',
+              size: 768000
+            },
+            'resource-taxi-stations': {
+              id: 'resource-taxi-stations',
+              title: 'Stations de taxi Paris',
+              description: 'Emplacements des stations de taxi officielles',
+              format: 'geojson',
+              url: 'https://example.com/taxi-stations.geojson',
+              mimeType: 'application/geo+json',
+              size: 256000
+            },
+            'resource-traffic-data': {
+              id: 'resource-traffic-data',
+              title: 'Données de trafic temps réel',
+              description: 'Informations de trafic en temps réel sur les axes principaux',
+              format: 'json',
+              url: 'https://example.com/traffic-data.json',
+              mimeType: 'application/json',
+              size: 2048000
+            },
+            'resource-road-works': {
+              id: 'resource-road-works',
+              title: 'Travaux de voirie Paris',
+              description: 'Informations sur les travaux en cours et à venir',
+              format: 'csv',
+              url: 'https://example.com/road-works.csv',
+              mimeType: 'text/csv',
+              size: 384000
+            },
+            'resource-speed-limits': {
+              id: 'resource-speed-limits',
+              title: 'Limitations de vitesse',
+              description: 'Cartographie des limitations de vitesse par rue',
+              format: 'shapefile',
+              url: 'https://example.com/speed-limits.zip',
+              mimeType: 'application/zip',
+              size: 3072000
+            },
+            'resource-pedestrian-zones': {
+              id: 'resource-pedestrian-zones',
+              title: 'Zones piétonnes Paris',
+              description: 'Délimitation des zones réservées aux piétons',
+              format: 'geojson',
+              url: 'https://example.com/pedestrian-zones.geojson',
+              mimeType: 'application/geo+json',
+              size: 1024000
+            },
+            'resource-cycle-lanes': {
+              id: 'resource-cycle-lanes',
+              title: 'Pistes cyclables Paris',
+              description: 'Réseau des pistes cyclables et voies vertes',
+              format: 'geojson',
+              url: 'https://example.com/cycle-lanes.geojson',
+              mimeType: 'application/geo+json',
+              size: 1792000
+            },
+            'resource-public-transport-schedules': {
+              id: 'resource-public-transport-schedules',
+              title: 'Horaires transports publics',
+              description: 'Horaires théoriques des lignes de transport public',
+              format: 'gtfs',
+              url: 'https://example.com/schedules.zip',
+              mimeType: 'application/zip',
+              size: 25600000
+            }
+          }
+        },
+        'subcategory-boundaries': {
+          id: 'subcategory-boundaries',
+          title: 'Délimitations administratives',
+          folders: {},
+          resources: {
+            'resource-communes': {
+              id: 'resource-communes',
+              title: 'Limites communales',
+              description: 'Délimitations des communes françaises',
+              format: 'shapefile',
+              url: 'https://example.com/communes.zip',
+              mimeType: 'application/zip',
+              size: 15360000
+            }
+          }
+        }
       },
-      {
-        id: 'dataset-feline-behavior-shapefile',
-        title: 'Comportements_Felins_2023',
-        format: 'shapefile',
-        fileName: 'Comportements_Felins_2023.shp',
-        url: 'https://data.catipsum.example.com/datasets/feline/behavior?format=shapefile',
-        mimeType: 'application/octet-stream',
-        size: 12345678,
+      resources: {}
+    },
+    'category-demographic': {
+      id: 'category-demographic',
+      title: 'Données Démographiques',
+      folders: {},
+      resources: {
+        'resource-population-2023': {
+          id: 'resource-population-2023',
+          title: 'Population par commune 2023',
+          description: 'Données démographiques détaillées par commune',
+          format: 'xlsx',
+          url: 'https://example.com/population-2023.xlsx',
+          mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          size: 5120000
+        }
       }
-    ]
+    }
   },
-  {
-    id: 'dataset-hunting-paths',
-    title: 'Parcours de chasse nocturne - MeowCity',
-    description: "Ensemble de données contenant les informations géospatiales des tracés des parcours de chasse nocturne des chats domestiques de MeowCity.\n\n**Méthode de collecte**\nLes parcours (tracks.txt) contenus dans le fichier GPS des colliers félins sont disponibles en format shapefile de façon à faciliter l'intégration dans les systèmes d'information géospatiaux (SIG).\n\n**Attributs**\n| Champ | Alias | Type |\n| --- | --- | --- |\n| `cat_id` |  | `long` |\n| `owner_id` |  | `varchar` |\n| `path_short` |  | `long` |\n| `path_long` |  | `varchar` |\n| `path_type` |  | `long` |\n| `path_url` |  | `varchar` |\n| `path_color` |  | `varchar` |\n| `path_text` |  | `long` |\n\nPour plus d'informations, consultez [la métadonnée sur le catalogue CatIpsum](https://catipsum.example.com/catalog/hunting-paths).",
-    keywords: [
-      'chasse-nocturne',
-      'félin',
-      'meow-city',
-      'comportement'
-    ],
-    origin: 'https://catipsum.example.com/datasets/hunting-paths',
-    resources: [
-      {
-        id: 'dataset-hunting-paths-csv',
-        title: 'Feline_Hunting_Paths',
-        format: 'csv',
-        url: 'https://data.catipsum.example.com/datasets/hunting/paths?format=csv',
-      },
-      {
-        id: 'dataset-hunting-paths-shapefile',
-        title: 'Feline_Hunting_Paths',
-        format: 'shapefile',
-        url: 'https://data.catipsum.example.com/datasets/hunting/paths?format=shapefile',
-        mimeType: 'application/octet-stream'
-      },
-      {
-        id: 'dataset-hunting-paths-geojson',
-        title: 'Feline_Hunting_Paths',
-        format: 'geojson',
-        url: 'https://data.catipsum.example.com/datasets/hunting/paths?format=geojson',
-        mimeType: 'application/geo+json'
-      }
-    ]
-  }
-]
+  resources: {}
+}

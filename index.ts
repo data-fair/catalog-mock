@@ -4,7 +4,7 @@ import clone from '@data-fair/lib-utils/clone.js'
 import { schema as configSchema, assertValid as assertConfigValid, type MockConfig } from './types/config/index.ts'
 import { rootFolder } from './lib/utils.ts'
 
-export const listResources = async (catalogConfig: MockConfig, params?: { q?: string }) => {
+const listResources = async (catalogConfig: MockConfig, params?: { q?: string }) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
 
   const filterFolders = clone(rootFolder)
@@ -26,6 +26,18 @@ const getResource = async (catalogConfig: MockConfig, resourceId: string) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
 
   return clone(rootFolder.folders?.['category-demographic'].resources?.['resource-population-2023']) || undefined
+}
+
+const downloadResource = async (catalogConfig: MockConfig, resourceId: string, tmpDir: string) => {
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
+  // Simulate downloading by copying a dummy file
+  const fs = await import('fs-extra')
+  const path = await import('path')
+  const sourceFile = path.join(import.meta.dirname, 'lib', 'jdd-mock.csv')
+  const destFile = path.join(tmpDir, 'jdd-mock.csv')
+  await fs.copy(sourceFile, destFile)
+  return destFile
 }
 
 const publishDataset = async (catalogConfig: MockConfig, dataset: any, exp: any) => {
@@ -53,6 +65,7 @@ const metadata: CatalogMetadata<typeof capabilities> = {
 const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
   listResources,
   getResource,
+  downloadResource,
   publishDataset,
   deleteDataset,
   configSchema,

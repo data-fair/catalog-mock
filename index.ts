@@ -1,4 +1,4 @@
-import type { CatalogPlugin, CatalogMetadata } from '@data-fair/lib-common-types/catalog/index.js'
+import type { CatalogPlugin, CatalogMetadata, DownloadContext } from '@data-fair/lib-common-types/catalog/index.js'
 
 import clone from '@data-fair/lib-utils/clone.js'
 import { schema as configSchema, assertValid as assertConfigValid, type MockConfig } from './types/config/index.ts'
@@ -28,21 +28,38 @@ const getResource = async (catalogConfig: MockConfig, resourceId: string) => {
   return clone(rootFolder.folders?.['category-demographic'].resources?.['resource-population-2023']) || undefined
 }
 
-const downloadResource = async (catalogConfig: MockConfig, resourceId: string, tmpDir: string) => {
+const downloadResource = async ({ importConfig, tmpDir }: DownloadContext<MockConfig>) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
 
-  // Simulate downloading by copying a dummy file
-  const fs = await import('fs-extra')
+  // Simulate downloading by copying a dummy file with limited rows
+  const fs = await import('node:fs/promises')
   const path = await import('path')
   const sourceFile = path.join(import.meta.dirname, 'lib', 'jdd-mock.csv')
   const destFile = path.join(tmpDir, 'jdd-mock.csv')
-  await fs.copy(sourceFile, destFile)
+  const data = await fs.readFile(sourceFile, 'utf8')
+  const lines = data.split('\n').slice(0, importConfig.nbRows).join('\n')
+  await fs.writeFile(destFile, lines, 'utf8')
   return destFile
 }
 
-const publishDataset = async (catalogConfig: MockConfig, dataset: any, exp: any) => {
+const importConfigSchema = {
+  type: 'object',
+  properties: {
+    nbRows: {
+      title: 'Nombre de lignes à importer',
+      type: 'integer',
+      default: 10,
+      minimum: 5,
+      maximum: 50
+    }
+  },
+  required: ['nbRows'],
+  additionalProperties: false
+}
+
+const publishDataset = async (catalogConfig: MockConfig, dataset: any, publication: any) => {
   console.log('Publishing dataset ' + dataset.id)
-  return exp
+  return publication
 }
 
 const deleteDataset = async () => {
@@ -52,6 +69,7 @@ const deleteDataset = async () => {
 const capabilities = [
   'listResources' as const,
   'search' as const,
+  'importConfig' as const,
   'publishDataset' as const,
   'deletePublication' as const
 ]
@@ -66,6 +84,7 @@ const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
   listResources,
   getResource,
   downloadResource,
+  importConfigSchema,
   publishDataset,
   deleteDataset,
   configSchema,

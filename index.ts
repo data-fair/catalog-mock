@@ -1,35 +1,116 @@
-import type { CatalogPlugin, CatalogMetadata, DownloadContext } from '@data-fair/lib-common-types/catalog/index.js'
+import type { CatalogPlugin, CatalogMetadata, ListContext, DownloadResourceContext, Folder } from '@data-fair/lib-common-types/catalog/index.js'
 
 import clone from '@data-fair/lib-utils/clone.js'
 import { schema as configSchema, assertValid as assertConfigValid, type MockConfig } from './types/config/index.ts'
-import { rootFolder } from './lib/utils.ts'
+import { folders } from './lib/utils.ts'
 
-const listResources = async (catalogConfig: MockConfig, params?: { q?: string }) => {
+const list = async ({ params }: ListContext<MockConfig, typeof capabilities>) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
 
-  const filterFolders = clone(rootFolder)
-  // Filter datasets based on search query
-  // if (params?.q) {
-  //   const searchTerm = params.q.toLowerCase()
-  //   results = allDatasets.filter(dataset =>
-  //     dataset.title.toLowerCase().includes(searchTerm)
-  //   )
-  // }
+  const filterData = clone(folders)
+
+  // Helper function to find parent path
+  const findParentPath = (folders: any[], targetId: string, path: any[] = []): any[] | null => {
+    for (const folder of folders) {
+      if (folder.id === targetId) {
+        return path
+      }
+      if (folder.folders) {
+        const found = findParentPath(folder.folders, targetId, [...path, { id: folder.id, title: folder.title }])
+        if (found) return found
+      }
+    }
+    return null
+  }
+
+  const res = []
+  let path: Folder[] = []
+
+  if (params.currentFolderId) { // If a folder is specified, navigate through the folder structure
+    const findFolder = (folders: any[], targetId: string): any => {
+      for (const folder of folders) {
+        if (folder.id === targetId) {
+          return folder
+        }
+        if (folder.folders) {
+          const found = findFolder(folder.folders, targetId)
+          if (found) return found
+        }
+      }
+      return null
+    }
+
+    // Get parent path for current folder
+    const parentPath = findParentPath(filterData || [], params.currentFolderId) || []
+    const currentFolder = findFolder(filterData || [], params.currentFolderId)
+
+    // Include parents and current folder in path
+    path = [...parentPath]
+    if (currentFolder) {
+      path.push({ id: currentFolder.id, title: currentFolder.title, type: 'folder' })
+    }
+
+    const targetFolder = findFolder(filterData || [], params.currentFolderId)
+    if (targetFolder) {
+      for (const subFolder of targetFolder.folders || []) {
+        res.push({
+          id: subFolder.id,
+          title: subFolder.title,
+          type: 'folder'
+        })
+      }
+      for (const resource of targetFolder.resources || []) {
+        res.push(resource)
+      }
+    }
+  } else {
+    for (const subFolder of filterData || []) {
+      res.push({
+        id: subFolder.id,
+        title: subFolder.title,
+        type: 'folder'
+      })
+    }
+  }
 
   return {
     count: 15,
-    rootFolder: filterFolders
+    results: res,
+    path
   }
 }
 
 const getResource = async (catalogConfig: MockConfig, resourceId: string) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
 
-  return clone(rootFolder.folders?.['category-demographic'].resources?.['resource-population-2023']) || undefined
+  const findResourceById = (folders: any[], targetId: string): any => {
+    for (const folder of folders) {
+      // Check resources in current folder
+      if (folder.resources) {
+        const resource = folder.resources.find((r: any) => r.id === targetId)
+        if (resource) return resource
+      }
+
+      // Check subfolders recursively
+      if (folder.folders) {
+        const found = findResourceById(folder.folders, targetId)
+        if (found) return found
+      }
+    }
+    return null
+  }
+
+  return findResourceById(folders, resourceId)
 }
 
-const downloadResource = async ({ importConfig, tmpDir }: DownloadContext<MockConfig>) => {
+const downloadResource = async ({ catalogConfig, resourceId, importConfig, tmpDir }: DownloadResourceContext<MockConfig>) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
+
+  // First check if the resource exists
+  const resource = await getResource(catalogConfig, resourceId)
+  if (!resource) {
+    return undefined
+  }
 
   // Simulate downloading by copying a dummy file with limited rows
   const fs = await import('node:fs/promises')
@@ -67,7 +148,7 @@ const deleteDataset = async () => {
 }
 
 const capabilities = [
-  'listResources' as const,
+  'import' as const,
   'search' as const,
   'importConfig' as const,
   'publishDataset' as const,
@@ -81,7 +162,7 @@ const metadata: CatalogMetadata<typeof capabilities> = {
 }
 
 const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
-  listResources,
+  list,
   getResource,
   downloadResource,
   importConfigSchema,

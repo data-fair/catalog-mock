@@ -34,7 +34,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
-    "@data-fair/lib-common-types": "^1.10.1",
+    "@data-fair/lib-common-types": "^1.10.5",
     "@data-fair/lib-types-builder": "^1.8.0",
     "@types/fs-extra": "^11.0.4",
     "eslint": "^9.25.1",

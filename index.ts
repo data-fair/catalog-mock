@@ -74,7 +74,7 @@ const list = async ({ params }: ListContext<MockConfig, typeof capabilities>) =>
   }
 
   return {
-    count: 15,
+    count: res.length,
     results: res,
     path
   }

@@ -14,9 +14,9 @@
     "prepublishOnly": "npm run build-types"
   },
   "files": [
-    "*/lib/**",
-    "index.ts",
-    "**/types/config/.type/**"
+    "./lib/**",
+    "./types/config/.type/**",
+    "index.ts"
   ],
   "imports": {
     "#types": "./types/index.ts"

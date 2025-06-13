@@ -1,5 +1,10 @@
 import type { CatalogPlugin, CatalogMetadata, ListContext, DownloadResourceContext } from '@data-fair/lib-common-types/catalog/index.js'
 import { configSchema, assertConfigValid, type MockConfig } from '#types'
+import capabilities from './lib/capabilities.ts'
+
+// Since the plugin is very frequently imported, each function is imported on demand,
+// instead of loading the entire plugin.
+// This file should not contain any code, but only constants and dynamic imports of functions.
 
 const list = async (context: ListContext<MockConfig, typeof capabilities>) => {
   const { list } = await import('./lib/imports.ts')
@@ -16,6 +21,15 @@ const downloadResource = async (context: DownloadResourceContext<MockConfig>) =>
   return downloadResource(context)
 }
 
+const publishDataset = async (catalogConfig: MockConfig, dataset: any, publication: any) => {
+  console.log('Publishing dataset ' + dataset.id)
+  return publication
+}
+
+const deleteDataset = async () => {
+  console.log('Deleting dataset...')
+}
+
 const importConfigSchema = {
   type: 'object',
   properties: {
@@ -30,23 +44,6 @@ const importConfigSchema = {
   required: ['nbRows'],
   additionalProperties: false
 }
-
-const publishDataset = async (catalogConfig: MockConfig, dataset: any, publication: any) => {
-  console.log('Publishing dataset ' + dataset.id)
-  return publication
-}
-
-const deleteDataset = async () => {
-  console.log('Deleting dataset...')
-}
-
-const capabilities = [
-  'import' as const,
-  'search' as const,
-  'importConfig' as const,
-  'publishDataset' as const,
-  'deletePublication' as const
-]
 
 const metadata: CatalogMetadata<typeof capabilities> = {
   title: 'Catalog Mock',

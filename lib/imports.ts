@@ -1,13 +1,6 @@
 import type { ListContext, DownloadResourceContext, Folder, Resource } from '@data-fair/lib-common-types/catalog/index.js'
 import type { MockConfig } from '#types'
-
-export const capabilities = [
-  'import' as const,
-  'search' as const,
-  'importConfig' as const,
-  'publishDataset' as const,
-  'deletePublication' as const
-]
+import type capabilities from './capabilities.ts'
 
 export const list = async ({ params }: ListContext<MockConfig, typeof capabilities>): Promise<{ count: number; results: (Folder | Resource)[]; path: Folder[] }> => {
   await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate a delay for the mock plugin

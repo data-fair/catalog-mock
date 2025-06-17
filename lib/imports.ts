@@ -67,6 +67,13 @@ export const list = async ({ params }: ListContext<MockConfig, typeof capabiliti
       })
       parentId = parentFolder.parentId
     }
+
+    // Add the current folder to the path
+    path.push({
+      id: params.currentFolderId,
+      title: currentFolder.title,
+      type: 'folder'
+    })
   }
 
   return {
@@ -96,19 +103,25 @@ export const getResource = async (catalogConfig: MockConfig, resourceId: string)
 export const downloadResource = async ({ catalogConfig, resourceId, importConfig, tmpDir }: DownloadResourceContext<MockConfig>) => {
   await new Promise(resolve => setTimeout(resolve, 1000))
 
+  // Validate the importConfig
+  const { returnValid } = await import('#type/importConfig/index.ts')
+  returnValid(importConfig)
+
   // First check if the resource exists
   const resource = await getResource(catalogConfig, resourceId)
-  if (!resource) {
-    return undefined
-  }
+  if (!resource) return undefined
+
+  // Import necessary modules dynamically
+  const fs = await import('node:fs/promises')
+  const path = await import('node:path')
 
   // Simulate downloading by copying a dummy file with limited rows
-  const fs = await import('node:fs/promises')
-  const path = await import('path')
-  const sourceFile = path.join(import.meta.dirname, 'lib', 'jdd-mock.csv')
+  const sourceFile = path.join(import.meta.dirname, 'jdd-mock.csv')
   const destFile = path.join(tmpDir, 'jdd-mock.csv')
   const data = await fs.readFile(sourceFile, 'utf8')
-  const lines = data.split('\n').slice(0, importConfig.nbRows).join('\n')
+
+  // Limit the number of rows to importConfig.nbRows (Header excluded)
+  const lines = data.split('\n').slice(1, importConfig.nbRows).join('\n')
   await fs.writeFile(destFile, lines, 'utf8')
   return destFile
 }

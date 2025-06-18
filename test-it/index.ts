@@ -54,14 +54,53 @@ describe('catalog-mock', () => {
   })
 
   it('should download a resource', async () => {
-    // TODO: Check also importConfig validation
+    const fs = await import('fs-extra')
+
+    // Create a temporary directory for the download
+    const tmpDir = './data/test/downloads'
+    await fs.ensureDir(tmpDir)
+
+    const resourceId = 'category-demographic/resource-population-2023'
+    const downloadUrl = await catalogPlugin.downloadResource({
+      catalogConfig,
+      resourceId,
+      importConfig: {
+        nbRows: 10
+      },
+      tmpDir
+    })
+
+    assert.ok(downloadUrl, 'Download URL should not be undefined')
+    assert.ok(downloadUrl.endsWith('jdd-mock.csv'), 'Download URL should contain the downloaded file name')
+
+    // Check if the file exists
+    const fileExists = await fs.pathExists(downloadUrl)
+    assert.ok(fileExists, 'The downloaded file should exist')
   })
 
   it('should publish a resource', async () => {
+    const dataset = {
+      id: 'test-dataset',
+      title: 'Test Dataset',
+      description: 'This is a test dataset'
+    }
+    const publication = {
+      publicationSite: 'http://localhost:3000',
+      isResource: false
+    }
 
+    const result = await catalogPlugin.publishDataset(catalogConfig, dataset, publication)
+    assert.ok(result, 'The publication should be successful')
+    assert.equal(result.publicationSite, publication.publicationSite, 'Publication site should not be changed')
+    assert.equal(result.isResource, publication.isResource, 'Publication type should not be changed')
   })
 
   it('should delete a resource', async () => {
+    const datasetId = 'test-dataset'
+    const resourceId = 'category-demographic/resource-population-2023'
 
+    await catalogPlugin.deleteDataset(catalogConfig, datasetId, resourceId)
+    // Since this is a mock plugin, we cannot verify the deletion, but we can check that no error is thrown
+    assert.ok(true, 'Delete operation should not throw an error')
   })
 })

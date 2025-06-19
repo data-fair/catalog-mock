@@ -25,12 +25,17 @@ const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
     return downloadResource(context)
   },
 
-  async publishDataset (catalogConfig, dataset, publication) {
+  async publishDataset ({ catalogConfig, dataset, publication }) {
     debug('Publishing dataset ' + dataset.id)
+    publication.remoteDataset = {
+      id: 'my-mock-' + dataset.id,
+      title: dataset.title,
+      url: 'https://example.com/dataset/' + dataset.id,
+    }
     return publication
   },
 
-  async deleteDataset () {
+  async deleteDataset ({ catalogConfig, datasetId, resourceId }) {
     debug('Deleting dataset...')
   },
 

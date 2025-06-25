@@ -1,6 +1,6 @@
 import type { CatalogPlugin } from '@data-fair/lib-common-types/catalog/index.js'
 import { importConfigSchema, configSchema, assertConfigValid, type MockConfig } from '#types'
-import capabilities from './lib/capabilities.ts'
+import { type MockCapabilities, capabilities } from './lib/capabilities.ts'
 import Debug from 'debug'
 const debug = Debug('catalog-mock')
 
@@ -8,7 +8,7 @@ const debug = Debug('catalog-mock')
 // instead of loading the entire plugin.
 // This file should not contain any code, but only constants and dynamic imports of functions.
 
-const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
+const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
   async prepare ({ catalogConfig, secrets }) {
     debug('Preparing catalog mock plugin...')
     const secretField = catalogConfig.secretField

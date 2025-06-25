@@ -1,8 +1,8 @@
 import type { ListContext, DownloadResourceContext, Folder, Resource, GetResourceContext } from '@data-fair/lib-common-types/catalog/index.js'
 import type { MockConfig } from '#types'
-import type capabilities from './capabilities.ts'
+import type { MockCapabilities } from './capabilities.ts'
 
-export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, typeof capabilities>): Promise<{ count: number; results: (Folder | Resource)[]; path: Folder[] }> => {
+export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, MockCapabilities>): Promise<{ count: number; results: (Folder | Resource)[]; path: Folder[] }> => {
   await new Promise(resolve => setTimeout(resolve, catalogConfig.delay)) // Simulate a delay for the mock plugin
 
   const clone = (await import('@data-fair/lib-utils/clone.js')).default

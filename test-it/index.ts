@@ -12,10 +12,16 @@ const catalogConfig = {
   url: 'http://localhost:3000',
 }
 
+/** Mock secrets for testing purposes. */
+const secrets = {
+  secretField: 'Hey'
+}
+
 describe('catalog-mock', () => {
   it('should list resources and folder from root', async () => {
     const res = await catalogPlugin.list({
       catalogConfig,
+      secrets,
       params: {}
     })
 
@@ -29,6 +35,7 @@ describe('catalog-mock', () => {
   it('should list resources and folder from a folder', async () => {
     const res = await catalogPlugin.list({
       catalogConfig,
+      secrets,
       params: { currentFolderId: 'category-geospatial' }
     })
 
@@ -44,7 +51,11 @@ describe('catalog-mock', () => {
 
   it('should get a resource', async () => {
     const resourceId = 'category-demographic/resource-population-2023'
-    const resource = await catalogPlugin.getResource(catalogConfig, resourceId)
+    const resource = await catalogPlugin.getResource({
+      catalogConfig,
+      secrets,
+      resourceId
+    })
     assert.ok(resource, 'The resource should exist')
 
     assert.equal(resource.id, resourceId, 'Resource ID should match')
@@ -65,6 +76,7 @@ describe('catalog-mock', () => {
       const resourceId = 'category-demographic/resource-population-2023'
       const downloadUrl = await catalogPlugin.downloadResource({
         catalogConfig,
+        secrets,
         resourceId,
         importConfig: {
           nbRows: 10
@@ -87,6 +99,7 @@ describe('catalog-mock', () => {
         async () => {
           await catalogPlugin.downloadResource({
             catalogConfig,
+            secrets,
             resourceId,
             importConfig: {
               nbRows: 100 // This exceeds the maximum of 50
@@ -105,6 +118,7 @@ describe('catalog-mock', () => {
         async () => {
           await catalogPlugin.downloadResource({
             catalogConfig,
+            secrets,
             resourceId,
             importConfig: {
               nbRows: 10
@@ -131,7 +145,13 @@ describe('catalog-mock', () => {
       datasetUrlTemplate: 'http://example.com/data-fair/{id}'
     }
 
-    const result = await catalogPlugin.publishDataset({ catalogConfig, dataset, publication, publicationSite })
+    const result = await catalogPlugin.publishDataset({
+      catalogConfig,
+      secrets,
+      dataset,
+      publication,
+      publicationSite
+    })
     assert.ok(result, 'The publication should be successful')
     assert.ok(result.remoteDataset, 'The returned publication should have a remote dataset')
     assert.equal(result.remoteDataset.id, 'my-mock-test-dataset', 'The returned publication should have a remote dataset with an ID')
@@ -142,7 +162,12 @@ describe('catalog-mock', () => {
     const datasetId = 'test-dataset'
     const resourceId = 'category-demographic/resource-population-2023'
 
-    await catalogPlugin.deleteDataset({ catalogConfig, datasetId, resourceId })
+    await catalogPlugin.deleteDataset({
+      catalogConfig,
+      secrets,
+      datasetId,
+      resourceId
+    })
     // Since this is a mock plugin, we cannot verify the deletion, but we can check that no error is thrown
     assert.ok(true, 'Delete operation should not throw an error')
   })

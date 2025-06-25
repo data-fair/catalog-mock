@@ -9,7 +9,8 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "url"
+    "url",
+    "delay"
   ],
   "properties": {
     "url": {
@@ -25,6 +26,37 @@
         "fr": "L'URL doit commencer par http:// ou https:// et ne pas se terminer par `/`."
       },
       "examples": ["https://example.com"]
+    },
+    "secretField": {
+      "type": "string",
+      "title": "Secret Field",
+      "x-i18n-title": {
+        "fr": "Champ chiffré"
+      },
+      "description": "A secret field that is ciphered but for testing purposes, shown in the description of imported datasets.",
+      "x-i18n-description": {
+        "fr": "Un champ secret qui est chiffré mais qui, à des fins de test, est affiché dans la description des jeux de données importés."
+      },
+      "layout": {
+        "props": {
+          "type": "password",
+          "autocomplete": "new-password"
+        }
+      }
+    },
+    "delay": {
+      "type": "number",
+      "title": "Response Delay",
+      "x-i18n-title": {
+        "fr": "Délai de réponse"
+      },
+      "description": "Adds a response delay (in ms) to requests to simulate server response time.",
+      "x-i18n-description": {
+        "fr": "Ajoute un temps de réponse (en ms) aux requêtes pour simuler un délai de réponse du serveur."
+      },
+      "default": 1000,
+      "minimum": 0,
+      "maximum": 60000
     }
   }
 }

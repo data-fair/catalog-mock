@@ -1,9 +1,9 @@
-import type { ListContext, DownloadResourceContext, Folder, Resource } from '@data-fair/lib-common-types/catalog/index.js'
+import type { ListContext, DownloadResourceContext, Folder, Resource, GetResourceContext } from '@data-fair/lib-common-types/catalog/index.js'
 import type { MockConfig } from '#types'
 import type capabilities from './capabilities.ts'
 
-export const list = async ({ params }: ListContext<MockConfig, typeof capabilities>): Promise<{ count: number; results: (Folder | Resource)[]; path: Folder[] }> => {
-  await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate a delay for the mock plugin
+export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, typeof capabilities>): Promise<{ count: number; results: (Folder | Resource)[]; path: Folder[] }> => {
+  await new Promise(resolve => setTimeout(resolve, catalogConfig.delay)) // Simulate a delay for the mock plugin
 
   const clone = (await import('@data-fair/lib-utils/clone.js')).default
   const tree = clone((await import('./resources.ts')).default)
@@ -35,6 +35,7 @@ export const list = async ({ params }: ListContext<MockConfig, typeof capabiliti
         acc.push({
           id: key,
           ...rest,
+          description: rest.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
           type: 'resource'
         })
       }
@@ -83,32 +84,33 @@ export const list = async ({ params }: ListContext<MockConfig, typeof capabiliti
   }
 }
 
-export const getResource = async (catalogConfig: MockConfig, resourceId: string): Promise<Resource> => {
-  await new Promise(resolve => setTimeout(resolve, 1000))
+export const getResource = async ({ catalogConfig, secrets, resourceId }: GetResourceContext<MockConfig>): Promise<Resource> => {
+  await new Promise(resolve => setTimeout(resolve, catalogConfig.delay))
 
   const clone = (await import('@data-fair/lib-utils/clone.js')).default
   const resources = clone((await import('./resources.ts')).default)
 
   const resource = resources.resources[resourceId]
   if (!resource) { throw new Error(`Resource with ID ${resourceId} not found`) }
-  const { folderId, ...rest } = resource
+  const { folderId, ...rest } = resource // Exclude folderId from the resource object
 
   return {
     id: resourceId,
     ...rest,
+    description: rest.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
     type: 'resource'
   }
 }
 
-export const downloadResource = async ({ catalogConfig, resourceId, importConfig, tmpDir }: DownloadResourceContext<MockConfig>) => {
-  await new Promise(resolve => setTimeout(resolve, 1000))
+export const downloadResource = async ({ catalogConfig, secrets, resourceId, importConfig, tmpDir }: DownloadResourceContext<MockConfig>) => {
+  await new Promise(resolve => setTimeout(resolve, catalogConfig.delay))
 
   // Validate the importConfig
   const { returnValid } = await import('#type/importConfig/index.ts')
   returnValid(importConfig)
 
   // First check if the resource exists
-  const resource = await getResource(catalogConfig, resourceId)
+  const resource = await getResource({ catalogConfig, secrets, resourceId })
   if (!resource) return undefined
 
   // Import necessary modules dynamically

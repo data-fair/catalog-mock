@@ -9,15 +9,38 @@ const debug = Debug('catalog-mock')
 // This file should not contain any code, but only constants and dynamic imports of functions.
 
 const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
+  async prepare ({ catalogConfig, secrets }) {
+    debug('Preparing catalog mock plugin...')
+    const secretField = catalogConfig.secretField
+
+    // If the config contains a secretField, and it is not already hidden
+    if (secretField && secretField !== '********') {
+      // Hide the secret in the catalogConfig, and copy it to secrets
+      secrets.secretField = secretField
+      catalogConfig.secretField = '********'
+
+    // If the secretField is in the secrets, and empty in catalogConfig,
+    // then it means the user has cleared the secret in the config
+    } else if (secrets?.secretField && secretField === '') {
+      delete secrets.secretField
+    } else {
+      // The secret is already set, do nothing
+    }
+
+    return {
+      catalogConfig,
+      secrets
+    }
+  },
 
   async list (context) {
     const { list } = await import('./lib/imports.ts')
     return list(context)
   },
 
-  async getResource (catalogConfig, resourceId) {
+  async getResource (context) {
     const { getResource } = await import('./lib/imports.ts')
-    return getResource(catalogConfig, resourceId)
+    return getResource(context)
   },
 
   async downloadResource (context) {
@@ -25,7 +48,7 @@ const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
     return downloadResource(context)
   },
 
-  async publishDataset ({ catalogConfig, dataset, publication }) {
+  async publishDataset ({ dataset, publication }) {
     debug('Publishing dataset ' + dataset.id)
     publication.remoteDataset = {
       id: 'my-mock-' + dataset.id,
@@ -35,7 +58,7 @@ const plugin: CatalogPlugin<MockConfig, typeof capabilities> = {
     return publication
   },
 
-  async deleteDataset ({ catalogConfig, datasetId, resourceId }) {
+  async deleteDataset () {
     debug('Deleting dataset...')
   },
 

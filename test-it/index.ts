@@ -49,20 +49,6 @@ describe('catalog-mock', () => {
 
   it('should list resources and folder with pagination', { skip: 'This catalog does not support pagination' }, async () => {})
 
-  it('should get a resource', async () => {
-    const resourceId = 'category-demographic/resource-population-2023'
-    const resource = await catalogPlugin.getResource({
-      catalogConfig,
-      secrets,
-      resourceId
-    })
-    assert.ok(resource, 'The resource should exist')
-
-    assert.equal(resource.id, resourceId, 'Resource ID should match')
-    assert.equal(resource.title, 'Population par commune 2023', 'Resource title should match')
-    assert.equal(resource.type, 'resource', 'Expected resource type to be "resource"')
-  })
-
   describe('should download a resource', async () => {
     const tmpDir = './data/test/downloads'
 
@@ -74,7 +60,7 @@ describe('catalog-mock', () => {
 
     it('with correct params', async () => {
       const resourceId = 'category-demographic/resource-population-2023'
-      const downloadUrl = await catalogPlugin.downloadResource({
+      const resource = await catalogPlugin.getResource({
         catalogConfig,
         secrets,
         resourceId,
@@ -84,11 +70,16 @@ describe('catalog-mock', () => {
         tmpDir
       })
 
-      assert.ok(downloadUrl, 'Download URL should not be undefined')
-      assert.ok(downloadUrl.endsWith('jdd-mock.csv'), 'Download URL should contain the downloaded file name')
+      assert.ok(resource, 'The resource should exist')
+
+      assert.equal(resource.id, resourceId, 'Resource ID should match')
+      assert.equal(resource.title, 'Population par commune 2023', 'Resource title should match')
+
+      assert.ok(resource.filePath, 'Download URL should not be undefined')
+      assert.ok(resource.filePath.endsWith('jdd-mock.csv'), 'Download URL should contain the downloaded file name')
 
       // Check if the file exists
-      const fileExists = await fs.pathExists(downloadUrl)
+      const fileExists = await fs.pathExists(resource.filePath)
       assert.ok(fileExists, 'The downloaded file should exist')
     })
 
@@ -97,7 +88,7 @@ describe('catalog-mock', () => {
 
       await assert.rejects(
         async () => {
-          await catalogPlugin.downloadResource({
+          await catalogPlugin.getResource({
             catalogConfig,
             secrets,
             resourceId,
@@ -116,7 +107,7 @@ describe('catalog-mock', () => {
 
       await assert.rejects(
         async () => {
-          await catalogPlugin.downloadResource({
+          await catalogPlugin.getResource({
             catalogConfig,
             secrets,
             resourceId,

@@ -1,5 +1,5 @@
 {
-  "$id": "https://github.com/data-fair/catalog-udata/import-config",
+  "$id": "https://github.com/data-fair/catalog-mock/import-config",
   "x-exports": [
     "types",
     "validate",

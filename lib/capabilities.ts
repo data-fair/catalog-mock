@@ -6,6 +6,8 @@
  */
 export const capabilities = [
   'import' as const,
+  'search' as const,
+  'pagination' as const,
   'importConfig' as const,
   'publishDataset' as const,
   'deletePublication' as const

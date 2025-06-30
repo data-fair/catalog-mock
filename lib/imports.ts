@@ -1,52 +1,74 @@
-import type { ListContext, DownloadResourceContext, Folder, Resource, GetResourceContext } from '@data-fair/lib-common-types/catalog/index.js'
+import type { CatalogPlugin, ListContext, Folder, GetResourceContext } from '@data-fair/lib-common-types/catalog/index.js'
 import type { MockConfig } from '#types'
 import type { MockCapabilities } from './capabilities.ts'
 
-export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, MockCapabilities>): Promise<{ count: number; results: (Folder | Resource)[]; path: Folder[] }> => {
+export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, MockCapabilities>): ReturnType<CatalogPlugin['list']> => {
   await new Promise(resolve => setTimeout(resolve, catalogConfig.delay)) // Simulate a delay for the mock plugin
 
   const clone = (await import('@data-fair/lib-utils/clone.js')).default
-  const tree = clone((await import('./resources.ts')).default)
+  const tree = clone((await import('./resources/datasets-mock.ts')).default)
 
   /**
    * Extracts folders and resources for a given parent/folder ID
    * @param resources - The resources object containing folders and resources
-   * @param targetId - The parent ID for folders or folder ID for resources (null for root level)
+   * @param targetId - The parent ID for folders or folder ID for resources (undefined for root level)
    * @returns Array of folders and resources matching the criteria
    */
-  const getFoldersAndResources = (targetId: string | null): (Folder | Resource)[] => {
+  const getFoldersAndResources = (targetId: string | undefined) => {
     const folders = Object.keys(tree.folders).reduce((acc: Folder[], key) => {
-      if (tree.folders[key].parentId === targetId) {
-        acc.push({
-          id: key,
-          title: tree.folders[key].title,
-          type: 'folder'
-        })
-      }
+      if (tree.folders[key].parentId !== targetId) return acc // Skip folders that are not under the targetId
+      acc.push({
+        id: key,
+        title: tree.folders[key].title,
+        type: 'folder'
+      })
       return acc
     }, [])
 
-    const folderResources = Object.keys(tree.resources).reduce((acc: Resource[], key) => {
-      if (tree.resources[key].folderId === targetId) {
-        // Exclude folderId from the resource object
-        const { folderId, ...rest } = tree.resources[key]
+    // In the mock plugin, we assume that resources are always under a folder
+    if (!targetId) return folders
 
-        // Add the resource to the result with type 'resource'
-        acc.push({
-          id: key,
-          ...rest,
-          description: rest.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
-          type: 'resource'
-        })
-      }
+    const resources = tree.folders[targetId]?.resourceIds.reduce((acc: Awaited<ReturnType<CatalogPlugin['list']>>['results'], resourceId) => {
+      const resource = tree.resources[resourceId]
+      if (!resource) return acc // Skip if resource not found
+
+      acc.push({
+        id: resourceId,
+        title: resource.title,
+        description: resource.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
+        format: resource.format,
+        mimeType: resource.mimeType,
+        origin: resource.origin,
+        size: resource.size,
+        type: 'resource'
+      })
       return acc
     }, [])
 
-    return [...folders, ...folderResources]
+    return [...folders, ...resources]
   }
 
   const path: Folder[] = []
-  const res: (Folder | Resource)[] = getFoldersAndResources(params.currentFolderId ?? null)
+  let res = getFoldersAndResources(params.currentFolderId)
+  // Get total count before search and pagination
+  const totalCount = res.length
+
+  // Apply search filter if provided
+  if (params.q && catalogConfig.searchCapability) {
+    const searchTerm = params.q.toLowerCase()
+    res = res.filter(item =>
+      item.title.toLowerCase().includes(searchTerm) ||
+      ('description' in item && item.description?.toLowerCase().includes(searchTerm))
+    )
+  }
+
+  if (catalogConfig.paginationCapability) {
+    // Apply pagination
+    const size = params.size || 20
+    const page = params.page || 0
+    const skip = (page - 1) * size
+    res = res.slice(skip, skip + size)
+  }
 
   // Get path to current folder if specified
   if (params.currentFolderId) {
@@ -56,7 +78,7 @@ export const list = async ({ catalogConfig, secrets, params }: ListContext<MockC
 
     // Get path to current folder (parents folders)
     let parentId = currentFolder.parentId
-    while (parentId !== null) {
+    while (parentId) {
       const parentFolder = tree.folders[parentId]
       if (!parentFolder) throw new Error(`Parent folder with ID ${parentId} not found`)
 
@@ -78,31 +100,13 @@ export const list = async ({ catalogConfig, secrets, params }: ListContext<MockC
   }
 
   return {
-    count: res.length,
+    count: totalCount,
     results: res,
     path
   }
 }
 
-export const getResource = async ({ catalogConfig, secrets, resourceId }: GetResourceContext<MockConfig>): Promise<Resource> => {
-  await new Promise(resolve => setTimeout(resolve, catalogConfig.delay))
-
-  const clone = (await import('@data-fair/lib-utils/clone.js')).default
-  const resources = clone((await import('./resources.ts')).default)
-
-  const resource = resources.resources[resourceId]
-  if (!resource) { throw new Error(`Resource with ID ${resourceId} not found`) }
-  const { folderId, ...rest } = resource // Exclude folderId from the resource object
-
-  return {
-    id: resourceId,
-    ...rest,
-    description: rest.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
-    type: 'resource'
-  }
-}
-
-export const downloadResource = async ({ catalogConfig, secrets, resourceId, importConfig, tmpDir }: DownloadResourceContext<MockConfig>) => {
+export const getResource = async ({ catalogConfig, secrets, resourceId, importConfig, tmpDir }: GetResourceContext<MockConfig>): ReturnType<CatalogPlugin['getResource']> => {
   await new Promise(resolve => setTimeout(resolve, catalogConfig.delay))
 
   // Validate the importConfig
@@ -110,20 +114,27 @@ export const downloadResource = async ({ catalogConfig, secrets, resourceId, imp
   returnValid(importConfig)
 
   // First check if the resource exists
-  const resource = await getResource({ catalogConfig, secrets, resourceId })
-  if (!resource) return undefined
+  const resources = (await import('./resources/datasets-mock.ts')).default
+  const resource = resources.resources[resourceId]
+  if (!resource) { throw new Error(`Resource with ID ${resourceId} not found`) }
 
   // Import necessary modules dynamically
   const fs = await import('node:fs/promises')
   const path = await import('node:path')
 
   // Simulate downloading by copying a dummy file with limited rows
-  const sourceFile = path.join(import.meta.dirname, 'jdd-mock.csv')
+  const sourceFile = path.join(import.meta.dirname, 'resources', 'jdd-mock.csv')
   const destFile = path.join(tmpDir, 'jdd-mock.csv')
   const data = await fs.readFile(sourceFile, 'utf8')
 
   // Limit the number of rows to importConfig.nbRows (Header excluded)
   const lines = data.split('\n').slice(1, importConfig.nbRows).join('\n')
   await fs.writeFile(destFile, lines, 'utf8')
-  return destFile
+
+  return {
+    id: resourceId,
+    ...resource,
+    description: resource.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
+    filePath: destFile
+  }
 }

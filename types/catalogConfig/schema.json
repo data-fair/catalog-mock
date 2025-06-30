@@ -1,5 +1,5 @@
 {
-  "$id": "https://github.com/data-fair/catalog-udata/catalog-config",
+  "$id": "https://github.com/data-fair/catalog-mock/catalog-config",
   "x-exports": [
     "types",
     "validate",
@@ -57,6 +57,30 @@
       "default": 1000,
       "minimum": 0,
       "maximum": 60000
+    },
+    "searchCapability": {
+      "type": "boolean",
+      "title": "Search Capability",
+      "x-i18n-title": {
+        "fr": "Capacité de recherche"
+      },
+      "description": "Indicates whether the catalog dynamically supports the search feature.",
+      "x-i18n-description": {
+        "fr": "Indique si le catalogue prend en charge dynamiquement la fonctionnalité de recherche."
+      },
+      "default": true
+    },
+    "paginationCapability": {
+      "type": "boolean",
+      "title": "Pagination Capability",
+      "x-i18n-title": {
+        "fr": "Capacité de pagination"
+      },
+      "description": "Indicates whether the catalog dynamically supports pagination.",
+      "x-i18n-description": {
+        "fr": "Indique si le catalogue prend en charge dynamiquement la pagination."
+      },
+      "default": true
     }
   }
 }

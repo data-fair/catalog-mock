@@ -1,4 +1,4 @@
-import type { CatalogPlugin } from '@data-fair/lib-common-types/catalog/index.js'
+import type CatalogPlugin from '@data-fair/types-catalogs'
 import { importConfigSchema, configSchema, assertConfigValid, type MockConfig } from '#types'
 import { type MockCapabilities, capabilities } from './lib/capabilities.ts'
 import Debug from 'debug'
@@ -41,6 +41,7 @@ const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
   metadata: {
     title: 'Catalog Mock',
     description: 'Mock plugin for Data Fair Catalog',
+    thumbnailPath: './lib/resources/thumbnail.svg',
     capabilities
   },
 

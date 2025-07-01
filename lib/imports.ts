@@ -1,4 +1,4 @@
-import type { CatalogPlugin, ListContext, Folder, GetResourceContext } from '@data-fair/lib-common-types/catalog/index.js'
+import type { CatalogPlugin, ListContext, Folder, GetResourceContext } from '@data-fair/types-catalogs'
 import type { MockConfig } from '#types'
 import type { MockCapabilities } from './capabilities.ts'
 

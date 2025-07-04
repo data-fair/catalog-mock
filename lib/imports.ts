@@ -106,12 +106,21 @@ export const list = async ({ catalogConfig, secrets, params }: ListContext<MockC
   }
 }
 
-export const getResource = async ({ catalogConfig, secrets, resourceId, importConfig, tmpDir }: GetResourceContext<MockConfig>): ReturnType<CatalogPlugin['getResource']> => {
-  await new Promise(resolve => setTimeout(resolve, catalogConfig.delay))
+export const getResource = async ({ catalogConfig, secrets, resourceId, importConfig, tmpDir, log }: GetResourceContext<MockConfig>): ReturnType<CatalogPlugin['getResource']> => {
+  await log.info(`Downloading resource ${resourceId}`, { catalogConfig, secrets, importConfig })
+
+  // Simulate a delay for the mock plugin
+  await log.task('delay', 'Simulate delay for mock plugin (Response Delay * 10) ', catalogConfig.delay * 10)
+  for (let i = 0; i < catalogConfig.delay * 10; i += catalogConfig.delay) {
+    await new Promise(resolve => setTimeout(resolve, catalogConfig.delay))
+    await log.progress('delay', i + catalogConfig.delay)
+  }
 
   // Validate the importConfig
+  await log.step('Validate import configuraiton')
   const { returnValid } = await import('#type/importConfig/index.ts')
   returnValid(importConfig)
+  await log.info('Import configuration is valid', { importConfig })
 
   // First check if the resource exists
   const resources = (await import('./resources/datasets-mock.ts')).default
@@ -122,6 +131,8 @@ export const getResource = async ({ catalogConfig, secrets, resourceId, importCo
   const fs = await import('node:fs/promises')
   const path = await import('node:path')
 
+  await log.step('Download resource file')
+  await log.warning('This task can take a while, please be patient')
   // Simulate downloading by copying a dummy file with limited rows
   const sourceFile = path.join(import.meta.dirname, 'resources', 'jdd-mock.csv')
   const destFile = path.join(tmpDir, 'jdd-mock.csv')
@@ -130,6 +141,12 @@ export const getResource = async ({ catalogConfig, secrets, resourceId, importCo
   // Limit the number of rows to importConfig.nbRows (Header excluded)
   const lines = data.split('\n').slice(1, importConfig.nbRows).join('\n')
   await fs.writeFile(destFile, lines, 'utf8')
+  await log.info(`${importConfig.nbRows} rows downloaded`)
+
+  await log.step('End of resource download')
+  await log.info(`Resource ${resourceId} downloaded successfully`)
+  await log.warning('This is a mock resource, the file is not real and does not contain real data.')
+  await log.error('Example of an error log for demonstration purposes.')
 
   return {
     id: resourceId,

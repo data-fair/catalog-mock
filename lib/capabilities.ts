@@ -11,7 +11,8 @@ export const capabilities = [
   'importConfig' as const,
   'publishDataset' as const,
   'deletePublication' as const,
-  'thumbnail' as const
+  'thumbnail' as const,
+  'thumbnailUrl' as const
 ]
 
 export type MockCapabilities = typeof capabilities

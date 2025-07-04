@@ -2,6 +2,7 @@ import type CatalogPlugin from '@data-fair/types-catalogs'
 import { strict as assert } from 'node:assert'
 import { it, describe, before, beforeEach } from 'node:test'
 import fs from 'fs-extra'
+import { logFunctions } from './test-utils.ts'
 
 // Import plugin and use default type like it's done in Catalogs
 import plugin from '../index.ts'
@@ -10,6 +11,7 @@ const catalogPlugin: CatalogPlugin = plugin as CatalogPlugin
 /** Mock catalog configuration for testing purposes. */
 const catalogConfig = {
   url: 'http://localhost:3000',
+  delay: 100, // 100ms delay for testing
 }
 
 /** Mock secrets for testing purposes. */
@@ -67,7 +69,8 @@ describe('catalog-mock', () => {
         importConfig: {
           nbRows: 10
         },
-        tmpDir
+        tmpDir,
+        log: logFunctions
       })
 
       assert.ok(resource, 'The resource should exist')
@@ -95,7 +98,8 @@ describe('catalog-mock', () => {
             importConfig: {
               nbRows: 100 // This exceeds the maximum of 50
             },
-            tmpDir
+            tmpDir,
+            log: logFunctions
           })
         },
         'Should throw a validation error for nbRows > 50'
@@ -114,7 +118,8 @@ describe('catalog-mock', () => {
             importConfig: {
               nbRows: 10
             },
-            tmpDir
+            tmpDir,
+            log: logFunctions
           })
         },
         /not found|does not exist/i,
@@ -141,7 +146,8 @@ describe('catalog-mock', () => {
       secrets,
       dataset,
       publication,
-      publicationSite
+      publicationSite,
+      log: logFunctions
     })
     assert.ok(result, 'The publication should be successful')
     assert.ok(result.remoteDataset, 'The returned publication should have a remote dataset')
@@ -157,7 +163,8 @@ describe('catalog-mock', () => {
       catalogConfig,
       secrets,
       datasetId,
-      resourceId
+      resourceId,
+      log: logFunctions
     })
     // Since this is a mock plugin, we cannot verify the deletion, but we can check that no error is thrown
     assert.ok(true, 'Delete operation should not throw an error')

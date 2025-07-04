@@ -26,9 +26,19 @@ export default async ({ catalogConfig, capabilities, secrets }: PrepareContext<M
   if (catalogConfig.paginationCapability && !capabilities.includes('pagination')) capabilities.push('pagination')
   else capabilities = capabilities.filter(c => c !== 'pagination')
 
+  let thumbnailUrl: string
+  if (catalogConfig.thumbnailUrl) {
+    if (!capabilities.includes('thumbnailUrl')) capabilities.push('thumbnailUrl')
+    thumbnailUrl = catalogConfig.thumbnailUrl
+  } else {
+    capabilities = capabilities.filter(c => c !== 'thumbnailUrl')
+    thumbnailUrl = ''
+  }
+
   return {
     catalogConfig,
     capabilities,
-    secrets
+    secrets,
+    thumbnailUrl
   }
 }

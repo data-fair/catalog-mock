@@ -1,8 +1,6 @@
 import type CatalogPlugin from '@data-fair/types-catalogs'
 import { importConfigSchema, configSchema, assertConfigValid, type MockConfig } from '#types'
 import { type MockCapabilities, capabilities } from './lib/capabilities.ts'
-import Debug from 'debug'
-const debug = Debug('catalog-mock')
 
 // Since the plugin is very frequently imported, each function is imported on demand,
 // instead of loading the entire plugin.
@@ -14,9 +12,9 @@ const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
     return prepare(context)
   },
 
-  async list (context) {
-    const { list } = await import('./lib/imports.ts')
-    return list(context)
+  async listResources (context) {
+    const { listResources } = await import('./lib/imports.ts')
+    return listResources(context)
   },
 
   async getResource (context) {
@@ -24,18 +22,19 @@ const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
     return getResource(context)
   },
 
-  async publishDataset ({ dataset, publication }) {
-    debug('Publishing dataset ' + dataset.id)
-    publication.remoteDataset = {
-      id: 'my-mock-' + dataset.id,
-      title: dataset.title,
-      url: 'https://example.com/dataset/' + dataset.id,
-    }
-    return publication
+  async listDatasets (context) {
+    const { listDatasets } = await import('./lib/publications.ts')
+    return listDatasets(context)
   },
 
-  async deleteDataset () {
-    debug('Deleting dataset...')
+  async publishDataset (context) {
+    const { publishDataset } = await import('./lib/publications.ts')
+    return publishDataset(context)
+  },
+
+  async deleteDataset (context) {
+    const { deleteDataset } = await import('./lib/publications.ts')
+    return deleteDataset(context)
   },
 
   metadata: {

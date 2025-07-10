@@ -21,7 +21,7 @@ const secrets = {
 
 describe('catalog-mock', () => {
   it('should list resources and folder from root', async () => {
-    const res = await catalogPlugin.list({
+    const res = await catalogPlugin.listResources({
       catalogConfig,
       secrets,
       params: {}
@@ -35,7 +35,7 @@ describe('catalog-mock', () => {
   })
 
   it('should list resources and folder from a folder', async () => {
-    const res = await catalogPlugin.list({
+    const res = await catalogPlugin.listResources({
       catalogConfig,
       secrets,
       params: { currentFolderId: 'category-geospatial' }
@@ -79,7 +79,7 @@ describe('catalog-mock', () => {
       assert.equal(resource.title, 'Population par commune 2023', 'Resource title should match')
 
       assert.ok(resource.filePath, 'Download URL should not be undefined')
-      assert.ok(resource.filePath.endsWith('jdd-mock.csv'), 'Download URL should contain the downloaded file name')
+      assert.ok(resource.filePath.endsWith('dataset-mock.csv'), 'Download URL should contain the downloaded file name')
 
       // Check if the file exists
       const fileExists = await fs.pathExists(resource.filePath)

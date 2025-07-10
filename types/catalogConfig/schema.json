@@ -80,7 +80,10 @@
       "minimum": 0,
       "maximum": 60000,
       "layout": {
-        "cols": 4
+        "cols": 4,
+        "props": {
+          "step": 100
+        }
       }
     },
     "searchCapability": {

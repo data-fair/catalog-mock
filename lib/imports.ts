@@ -1,12 +1,11 @@
-import type { CatalogPlugin, ListContext, Folder, GetResourceContext } from '@data-fair/types-catalogs'
+import type { CatalogPlugin, ListResourcesContext, Folder, GetResourceContext } from '@data-fair/types-catalogs'
 import type { MockConfig } from '#types'
 import type { MockCapabilities } from './capabilities.ts'
 
-export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, MockCapabilities>): ReturnType<CatalogPlugin['list']> => {
+export const listResources = async ({ catalogConfig, secrets, params }: ListResourcesContext<MockConfig, MockCapabilities>): ReturnType<CatalogPlugin['listResources']> => {
   await new Promise(resolve => setTimeout(resolve, catalogConfig.delay)) // Simulate a delay for the mock plugin
 
-  const clone = (await import('@data-fair/lib-utils/clone.js')).default
-  const tree = clone((await import('./resources/datasets-mock.ts')).default)
+  const tree = (await import('./resources/resources-mock.ts')).default
 
   /**
    * Extracts folders and resources for a given parent/folder ID
@@ -28,7 +27,7 @@ export const list = async ({ catalogConfig, secrets, params }: ListContext<MockC
     // In the mock plugin, we assume that resources are always under a folder
     if (!targetId) return folders
 
-    const resources = tree.folders[targetId]?.resourceIds.reduce((acc: Awaited<ReturnType<CatalogPlugin['list']>>['results'], resourceId) => {
+    const resources = tree.folders[targetId]?.resourceIds.reduce((acc: Awaited<ReturnType<CatalogPlugin['listResources']>>['results'], resourceId) => {
       const resource = tree.resources[resourceId]
       if (!resource) return acc // Skip if resource not found
 
@@ -123,7 +122,7 @@ export const getResource = async ({ catalogConfig, secrets, resourceId, importCo
   await log.info('Import configuration is valid', { importConfig })
 
   // First check if the resource exists
-  const resources = (await import('./resources/datasets-mock.ts')).default
+  const resources = (await import('./resources/resources-mock.ts')).default
   const resource = resources.resources[resourceId]
   if (!resource) { throw new Error(`Resource with ID ${resourceId} not found`) }
 
@@ -134,12 +133,12 @@ export const getResource = async ({ catalogConfig, secrets, resourceId, importCo
   await log.step('Download resource file')
   await log.warning('This task can take a while, please be patient')
   // Simulate downloading by copying a dummy file with limited rows
-  const sourceFile = path.join(import.meta.dirname, 'resources', 'jdd-mock.csv')
-  const destFile = path.join(tmpDir, 'jdd-mock.csv')
+  const sourceFile = path.join(import.meta.dirname, 'resources', 'dataset-mock.csv')
+  const destFile = path.join(tmpDir, 'dataset-mock.csv')
   const data = await fs.readFile(sourceFile, 'utf8')
 
   // Limit the number of rows to importConfig.nbRows (Header excluded)
-  const lines = data.split('\n').slice(1, importConfig.nbRows).join('\n')
+  const lines = data.split('\n').slice(0, importConfig.nbRows + 1).join('\n')
   await fs.writeFile(destFile, lines, 'utf8')
   await log.info(`${importConfig.nbRows} rows downloaded`)
 

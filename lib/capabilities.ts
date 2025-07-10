@@ -10,8 +10,7 @@ export const capabilities = [
   'search',
   'pagination',
   'importConfig',
-  'publishDataset',
-  'deletePublication',
+  'publication',
   'thumbnail',
   'thumbnailUrl'
 ] satisfies Capability[]

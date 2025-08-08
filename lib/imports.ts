@@ -61,7 +61,7 @@ export const listResources = async ({ catalogConfig, secrets, params }: ListReso
     )
   }
 
-  if (catalogConfig.paginationCapability) {
+  if (catalogConfig.paginationCapability && params.page && params.size) {
     // Apply pagination
     const size = params.size || 20
     const page = params.page || 0
@@ -147,10 +147,41 @@ export const getResource = async ({ catalogConfig, secrets, resourceId, importCo
   await log.warning('This is a mock resource, the file is not real and does not contain real data.')
   await log.error('Example of an error log for demonstration purposes.')
 
+  const attachments = []
+  if (importConfig.importAttachments) {
+    // Copy thumbnail to the tmpDir if it exists
+    const thumbnailSource = path.join(import.meta.dirname, 'resources', 'thumbnail.svg')
+    const thumbnailDest = path.join(tmpDir, 'thumbnail.svg')
+    await fs.copyFile(thumbnailSource, thumbnailDest)
+    await log.info(`Thumbnail downloaded to ${thumbnailDest}`)
+    attachments.push(
+      {
+        title: 'Mock Attachment',
+        description: 'This is a mock attachment',
+        url: 'https://example.com/mock-attachment'
+      })
+    attachments.push({
+      title: 'Another Mock Attachment',
+      description: 'This is another mock attachment',
+      filePath: thumbnailDest
+    })
+  } else {
+    await log.warning('Attachments import is disabled, no attachments will be imported.')
+  }
+
   return {
     id: resourceId,
     ...resource,
     description: resource.description + '\n\n' + secrets.secretField, // Include the secret in the description for demonstration
-    filePath: destFile
+    filePath: destFile,
+    frequency: 'monthly',
+    image: 'https://koumoul.com/data-fair-portals/api/v1/portals/8cbc8974-2fd2-46aa-b328-804600dc840f/assets/logo',
+    license: {
+      href: 'https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf',
+      title: 'Licence Ouverte / Open Licence'
+    },
+    keywords: ['mock', 'example', 'data'],
+    origin: 'https://example.com/mock',
+    attachments
   }
 }

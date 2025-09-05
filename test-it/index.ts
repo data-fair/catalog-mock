@@ -14,14 +14,22 @@ const catalogConfig = {
   delay: 100, // 100ms delay for testing
 }
 
-/** Mock secrets for testing purposes. */
-const secrets = {
-  secretField: 'Hey'
+const secrets = { secretField: 'Hey' }
+const tmpDir = './data/test/downloads'
+
+const getResourceParams = {
+  catalogConfig,
+  secrets,
+  resourceId: 'category-demographic/resource-population-2023',
+  importConfig: { nbRows: 10 },
+  update: { metadata: true, schema: true },
+  tmpDir,
+  log: logFunctions
 }
 
 describe('catalog-mock', () => {
   it('should list resources and folder from root', async () => {
-    const res = await catalogPlugin.listResources({
+    const res = await catalogPlugin.list({
       catalogConfig,
       secrets,
       params: {}
@@ -35,7 +43,7 @@ describe('catalog-mock', () => {
   })
 
   it('should list resources and folder from a folder', async () => {
-    const res = await catalogPlugin.listResources({
+    const res = await catalogPlugin.list({
       catalogConfig,
       secrets,
       params: { currentFolderId: 'category-geospatial' }
@@ -52,8 +60,6 @@ describe('catalog-mock', () => {
   it('should list resources and folder with pagination', { skip: 'This catalog does not support pagination' }, async () => {})
 
   describe('should download a resource', async () => {
-    const tmpDir = './data/test/downloads'
-
     // Ensure the temporary directory exists once for all tests
     before(async () => await fs.ensureDir(tmpDir))
 
@@ -63,14 +69,8 @@ describe('catalog-mock', () => {
     it('with correct params', async () => {
       const resourceId = 'category-demographic/resource-population-2023'
       const resource = await catalogPlugin.getResource({
-        catalogConfig,
-        secrets,
-        resourceId,
-        importConfig: {
-          nbRows: 10
-        },
-        tmpDir,
-        log: logFunctions
+        ...getResourceParams,
+        resourceId
       })
 
       assert.ok(resource, 'The resource should exist')
@@ -92,14 +92,11 @@ describe('catalog-mock', () => {
       await assert.rejects(
         async () => {
           await catalogPlugin.getResource({
-            catalogConfig,
-            secrets,
+            ...getResourceParams,
             resourceId,
             importConfig: {
               nbRows: 100 // This exceeds the maximum of 50
-            },
-            tmpDir,
-            log: logFunctions
+            }
           })
         },
         'Should throw a validation error for nbRows > 50'
@@ -112,14 +109,8 @@ describe('catalog-mock', () => {
       await assert.rejects(
         async () => {
           await catalogPlugin.getResource({
-            catalogConfig,
-            secrets,
-            resourceId,
-            importConfig: {
-              nbRows: 10
-            },
-            tmpDir,
-            log: logFunctions
+            ...getResourceParams,
+            resourceId
           })
         },
         /not found|does not exist/i,
@@ -128,41 +119,36 @@ describe('catalog-mock', () => {
     })
   })
 
-  it('should publish a resource', async () => {
+  it('should publish a dataset', async () => {
     const dataset = {
       id: 'test-dataset',
       title: 'Test Dataset',
       description: 'This is a test dataset'
-    }
-    const publication = { isResource: false }
-    const publicationSite = {
-      title: 'Test Site',
-      url: 'http://example.com',
-      datasetUrlTemplate: 'http://example.com/data-fair/{id}'
     }
 
     const result = await catalogPlugin.publishDataset({
       catalogConfig,
       secrets,
       dataset,
-      publication,
-      publicationSite,
+      publication: { action: 'createFolderInRoot' },
+      publicationSite: {
+        title: 'Test Site',
+        url: 'http://example.com',
+        datasetUrlTemplate: 'http://example.com/data-fair/{id}'
+      },
       log: logFunctions
     })
     assert.ok(result, 'The publication should be successful')
-    assert.ok(result.remoteDataset, 'The returned publication should have a remote dataset')
-    assert.equal(result.remoteDataset.id, 'my-mock-test-dataset', 'The returned publication should have a remote dataset with an ID')
-    assert.equal(result.isResource, publication.isResource, 'Publication type should not be changed')
+    assert.ok(result.remoteFolder, 'The returned publication should have a remote folder')
+    assert.equal(result.remoteFolder.id, 'folder-test-dataset', 'The returned publication should have a remote folder with an ID')
   })
 
-  it('should delete a resource', async () => {
-    const datasetId = 'test-dataset'
+  it('should delete a publication', async () => {
     const resourceId = 'category-demographic/resource-population-2023'
 
-    await catalogPlugin.deleteDataset({
+    await catalogPlugin.deletePublication({
       catalogConfig,
       secrets,
-      datasetId,
       resourceId,
       log: logFunctions
     })

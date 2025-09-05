@@ -149,6 +149,7 @@ export default {
       size: 25600000
     },
     'category-geospatial/subcategory-boundaries/resource-communes': {
+      slug: 'communes',
       title: 'Limites communales',
       description: 'Délimitations des communes françaises',
       format: 'shapefile',
@@ -157,6 +158,7 @@ export default {
       size: 15360000
     },
     'category-demographic/resource-population-2023': {
+      slug: 'population-2023',
       title: 'Population par commune 2023',
       description: 'Données démographiques détaillées par commune',
       format: 'xlsx',
@@ -167,5 +169,5 @@ export default {
   }
 } as {
   folders: Record<string, { title: string; parentId?: string; resourceIds: string[] }>
-  resources: Record<string, { title: string; description: string; format: string; origin: string; mimeType: string; size: number }>
+  resources: Record<string, { slug?: string; title: string; description: string; format: string; origin: string; mimeType: string; size: number }>
 }

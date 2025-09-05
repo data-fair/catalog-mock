@@ -6,13 +6,20 @@ import type { Capability } from '@data-fair/types-catalogs'
  * The capabilities must satisfy the `Capability` type.
  */
 export const capabilities = [
-  'import',
+  'thumbnail',
+  'thumbnailUrl',
   'search',
   'pagination',
+
+  'import',
   'importConfig',
+
   'publication',
-  'thumbnail',
-  'thumbnailUrl'
+  'createFolderInRoot',
+  'createFolder',
+  'createResource',
+  'replaceFolder',
+  'replaceResource'
 ] satisfies Capability[]
 
 export type MockCapabilities = typeof capabilities

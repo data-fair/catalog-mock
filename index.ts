@@ -1,6 +1,7 @@
 import type CatalogPlugin from '@data-fair/types-catalogs'
 import { importConfigSchema, configSchema, assertConfigValid, type MockConfig } from '#types'
 import { type MockCapabilities, capabilities } from './lib/capabilities.ts'
+import i18n from './lib/i18n.ts'
 
 // Since the plugin is very frequently imported, each function is imported on demand,
 // instead of loading the entire plugin.
@@ -12,9 +13,9 @@ const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
     return prepare(context)
   },
 
-  async listResources (context) {
-    const { listResources } = await import('./lib/imports.ts')
-    return listResources(context)
+  async list (context) {
+    const { list } = await import('./lib/list.ts')
+    return list(context)
   },
 
   async getResource (context) {
@@ -22,25 +23,20 @@ const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
     return getResource(context)
   },
 
-  async listDatasets (context) {
-    const { listDatasets } = await import('./lib/publications.ts')
-    return listDatasets(context)
-  },
-
   async publishDataset (context) {
     const { publishDataset } = await import('./lib/publications.ts')
     return publishDataset(context)
   },
 
-  async deleteDataset (context) {
-    const { deleteDataset } = await import('./lib/publications.ts')
-    return deleteDataset(context)
+  async deletePublication (context) {
+    const { deletePublication } = await import('./lib/publications.ts')
+    return deletePublication(context)
   },
 
   metadata: {
-    title: 'Catalog Mock',
-    description: 'Mock plugin for Data Fair Catalog',
+    title: 'Mock',
     thumbnailPath: './lib/resources/thumbnail.svg',
+    i18n,
     capabilities
   },
 

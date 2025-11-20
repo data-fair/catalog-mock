@@ -14,12 +14,12 @@ export const capabilities = [
   'import',
   'importConfig',
 
-  'publication',
   'createFolderInRoot',
   'createFolder',
   'createResource',
   'replaceFolder',
-  'replaceResource'
+  'replaceResource',
+  'requiresPublicationSite'
 ] satisfies Capability[]
 
 export type MockCapabilities = typeof capabilities

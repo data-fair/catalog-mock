@@ -117,6 +117,51 @@
         "comp": "switch",
         "cols": 4
       }
+    },
+    "publicationMode": {
+      "type": "string",
+      "title": "Publication Mode",
+      "x-i18n-title": {
+        "fr": "Mode de publication"
+      },
+      "description": "Select the publication mode to test different scenarios: 'none' for no publication capabilities, 'simple' for basic publication (one capability), 'full' for all publication capabilities, or 'withSite' for all capabilities including requiresPublicationSite.",
+      "x-i18n-description": {
+        "fr": "Sélectionnez le mode de publication pour tester différents scénarios : 'none' pour aucune capacité de publication, 'simple' pour une publication basique (une seule capacité), 'full' pour toutes les capacités de publication, ou 'withSite' pour toutes les capacités y compris requiresPublicationSite."
+      },
+      "default": "full",
+      "layout": {
+        "cols": 6
+      },
+      "oneOf": [
+        {
+          "const": "none",
+          "title": "No publication",
+          "x-i18n-title": {
+            "fr": "Aucune publication"
+          }
+        },
+        {
+          "const": "simple",
+          "title": "Simple (createFolderInRoot only)",
+          "x-i18n-title": {
+            "fr": "Simple (createFolderInRoot uniquement)"
+          }
+        },
+        {
+          "const": "full",
+          "title": "Full (all publication capabilities)",
+          "x-i18n-title": {
+            "fr": "Complet (toutes les capacités de publication)"
+          }
+        },
+        {
+          "const": "withSite",
+          "title": "With publication site (requiresPublicationSite)",
+          "x-i18n-title": {
+            "fr": "Avec site de publication (requiresPublicationSite)"
+          }
+        }
+      ]
     }
   }
 }

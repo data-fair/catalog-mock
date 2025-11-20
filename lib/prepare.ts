@@ -26,6 +26,28 @@ export default async ({ catalogConfig, capabilities, secrets }: PrepareContext<M
   if (catalogConfig.paginationCapability && !capabilities.includes('pagination')) capabilities.push('pagination')
   else capabilities = capabilities.filter(c => c !== 'pagination')
 
+  // Manage publication capabilities based on publicationMode
+  const publicationCapabilities: typeof capabilities[number][] = [
+    'createFolderInRoot',
+    'createFolder',
+    'createResource',
+    'replaceFolder',
+    'replaceResource'
+  ]
+
+  // Remove all publication capabilities first (including requiresPublicationSite)
+  capabilities = capabilities.filter(c => !publicationCapabilities.includes(c) && c !== 'requiresPublicationSite' && c !== 'publication' as any)
+
+  // Add capabilities based on publicationMode
+  if (catalogConfig.publicationMode === 'simple') {
+    capabilities.push('createFolderInRoot')
+  } else if (catalogConfig.publicationMode === 'full') {
+    capabilities.push(...publicationCapabilities)
+  } else if (catalogConfig.publicationMode === 'withSite') {
+    capabilities.push(...publicationCapabilities)
+    capabilities.push('requiresPublicationSite')
+  }
+
   let thumbnailUrl: string
   if (catalogConfig.thumbnailUrl) {
     if (!capabilities.includes('thumbnailUrl')) capabilities.push('thumbnailUrl')

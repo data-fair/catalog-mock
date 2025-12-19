@@ -2,6 +2,12 @@ import type { CatalogPlugin, ListContext, Folder } from '@data-fair/types-catalo
 import type { MockConfig } from '#types'
 import type { MockCapabilities } from './capabilities.ts'
 
+// Generate a random recent ISO date (within the last year)
+const randomRecentIso = () => {
+  const ms = Math.floor(Math.random() * 364 * 24 * 60 * 60 * 1000)
+  return new Date(Date.now() - ms).toISOString()
+}
+
 export const list = async ({ catalogConfig, secrets, params }: ListContext<MockConfig, MockCapabilities>): ReturnType<CatalogPlugin['list']> => {
   await new Promise(resolve => setTimeout(resolve, catalogConfig.delay)) // Simulate a delay for the mock plugin
 
@@ -19,7 +25,8 @@ export const list = async ({ catalogConfig, secrets, params }: ListContext<MockC
       acc.push({
         id: key,
         title: tree.folders[key].title,
-        type: 'folder'
+        type: 'folder',
+        updatedAt: randomRecentIso()
       })
       return acc
     }, [])
@@ -39,6 +46,7 @@ export const list = async ({ catalogConfig, secrets, params }: ListContext<MockC
         mimeType: resource.mimeType,
         origin: resource.origin,
         size: resource.size,
+        updatedAt: resource.updatedAt,
         type: 'resource'
       })
       return acc

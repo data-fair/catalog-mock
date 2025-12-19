@@ -50,7 +50,8 @@ export default {
       format: 'json',
       origin: 'https://example.com/gdp-data.json',
       mimeType: 'application/json',
-      size: 512000
+      size: 512000,
+      updatedAt: '2025-07-15T10:30:00Z'
     },
     'category-geospatial/subcategory-transport/resource-metro-stations': {
       title: 'Stations de métro Paris',
@@ -66,7 +67,8 @@ export default {
       format: 'csv',
       origin: 'https://example.com/bus-lines.csv',
       mimeType: 'text/csv',
-      size: 1024000
+      size: 1024000,
+      updatedAt: new Date('2024-06-01T12:00:00Z').toISOString()
     },
     'category-geospatial/subcategory-transport/resource-tram-lines': {
       title: 'Lignes de tramway Paris',
@@ -82,7 +84,8 @@ export default {
       format: 'json',
       origin: 'https://example.com/velib-stations.json',
       mimeType: 'application/json',
-      size: 512000
+      size: 512000,
+      updatedAt: '2025-01-20T08:15:00Z'
     },
     'category-geospatial/subcategory-transport/resource-parking-lots': {
       title: 'Parkings publics Paris',
@@ -90,7 +93,8 @@ export default {
       format: 'csv',
       origin: 'https://example.com/parking-lots.csv',
       mimeType: 'text/csv',
-      size: 768000
+      size: 768000,
+      updatedAt: '2025-03-05T14:00:00Z'
     },
     'category-geospatial/subcategory-transport/resource-taxi-stations': {
       title: 'Stations de taxi Paris',
@@ -114,7 +118,8 @@ export default {
       format: 'csv',
       origin: 'https://example.com/road-works.csv',
       mimeType: 'text/csv',
-      size: 384000
+      size: 384000,
+      updatedAt: '2025-04-18T07:30:00Z'
     },
     'category-geospatial/subcategory-transport/resource-speed-limits': {
       title: 'Limitations de vitesse',
@@ -122,7 +127,8 @@ export default {
       format: 'shapefile',
       origin: 'https://example.com/speed-limits.zip',
       mimeType: 'application/zip',
-      size: 3072000
+      size: 3072000,
+      updatedAt: '2023-12-02T11:20:00Z'
     },
     'category-geospatial/subcategory-transport/resource-pedestrian-zones': {
       title: 'Zones piétonnes Paris',
@@ -130,7 +136,8 @@ export default {
       format: 'geojson',
       origin: 'https://example.com/pedestrian-zones.geojson',
       mimeType: 'application/geo+json',
-      size: 1024000
+      size: 1024000,
+      updatedAt: '2025-02-12T13:05:00Z'
     },
     'category-geospatial/subcategory-transport/resource-cycle-lanes': {
       title: 'Pistes cyclables Paris',
@@ -138,7 +145,8 @@ export default {
       format: 'geojson',
       origin: 'https://example.com/cycle-lanes.geojson',
       mimeType: 'application/geo+json',
-      size: 1792000
+      size: 1792000,
+      updatedAt: '2025-06-28T18:25:00Z'
     },
     'category-geospatial/subcategory-transport/resource-public-transport-schedules': {
       title: 'Horaires transports publics',
@@ -146,7 +154,8 @@ export default {
       format: 'gtfs',
       origin: 'https://example.com/schedules.zip',
       mimeType: 'application/zip',
-      size: 25600000
+      size: 25600000,
+      updatedAt: '2025-10-03T05:55:00Z'
     },
     'category-geospatial/subcategory-boundaries/resource-communes': {
       slug: 'communes',
@@ -164,10 +173,11 @@ export default {
       format: 'xlsx',
       origin: 'https://example.com/population-2023.xlsx',
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      size: 5120000
+      size: 5120000,
+      updatedAt: '2024-08-19T21:40:00Z'
     }
   }
 } as {
   folders: Record<string, { title: string; parentId?: string; resourceIds: string[] }>
-  resources: Record<string, { slug?: string; title: string; description: string; format: string; origin: string; mimeType: string; size: number }>
+  resources: Record<string, { slug?: string; title: string; description: string; format: string; origin: string; mimeType: string; size: number; updatedAt?: string }>
 }

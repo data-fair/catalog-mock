@@ -35,7 +35,6 @@ const plugin: CatalogPlugin<MockConfig, MockCapabilities> = {
 
   metadata: {
     title: 'Mock',
-    thumbnailPath: './lib/resources/thumbnail.svg',
     i18n,
     capabilities
   },
